@@ -1,0 +1,28 @@
+.promo {
+  background-color: #073042;
+  margin-top: -56px;
+  padding-bottom: 60px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.promo__title {
+  width: 626px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 52px;
+  letter-spacing: -0.04em;
+  color: #FFFFFF;
+  margin: 0;
+  margin-top: 106px;
+}
+
+.promo__landing-logo {
+  width: 722px;
+  margin-top: 102px;
+  object-fit: none;
+  margin-left: auto;
+}
+
+
