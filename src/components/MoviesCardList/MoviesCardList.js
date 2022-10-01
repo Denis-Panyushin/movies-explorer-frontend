@@ -1,7 +1,7 @@
-import React from "react";
-import MoviesCard from "../MoviesCard/MoviesCard";
+import React from 'react';
+import MoviesCard from '../MoviesCard/MoviesCard';
 import './MoviesCardList.css';
-import useWindowSize from "../../hooks/useWindowSize";
+import useWindowSize from '../../hooks/useWindowSize';
 
 export default function MoviesCardList(props) {
   const size = useWindowSize();

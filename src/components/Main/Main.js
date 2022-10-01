@@ -1,5 +1,4 @@
-import React from "react";
-import './Main.css';
+import React from 'react';
 import Header from '../Header/Header.js';
 import Promo from '../Promo/Promo.js';
 import AboutProject from '../AboutProject/AboutProject.js';
@@ -13,7 +12,7 @@ export default function Main() {
   return(
     <>
       <Header loggedIn={false} />
-      <main className="landing-content">
+      <main className='landing-content'>
         <Promo />
         <AboutProject />
         <Techs />
