@@ -65,6 +65,7 @@ export default function MoviesCardList(props) {
               </section>
               <div className='movies-cardlist__more-button-container'>
                 <button
+                  type='button'
                   className='movies-cardlist__more-button'
                   aria-label='Показать еще'
                   onClick={increment}

@@ -30,8 +30,8 @@ export default function MoviesCard(props) {
         </a>
         {
           props.savedMovies
-          ? <button className='movie__button-delete'><img src={iconDeleteButton} alt='Иконка кнопки удалить' className='movie__icon-button-delete'/></button>
-          : isLiked ? <button className='movie__button-like movie__button-like_active' onClick={handleDelteLike}><img src={iconLikeButton} alt='Иконка активного лайка' className='movie__icon-button-like-active' /></button> : <button className='movie__button-like' onClick={handleLike}>Сохранить</button>
+          ? <button type='button' className='movie__button-delete'><img src={iconDeleteButton} alt='Иконка кнопки удалить' className='movie__icon-button-delete'/></button>
+          : isLiked ? <button type='button' className='movie__button-like movie__button-like_active' onClick={handleDelteLike}><img src={iconLikeButton} alt='Иконка активного лайка' className='movie__icon-button-like-active' /></button> : <button className='movie__button-like' onClick={handleLike}>Сохранить</button>
         }
       </div>
       <div className='movie__description'>

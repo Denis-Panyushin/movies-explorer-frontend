@@ -37,10 +37,10 @@ export default function Navigation(props) {
         props.loggedIn
           ?<>{burgerMenu
                 ? <>
-                    <button className='navigation__button' onClick={handleOpenBurgerMenu} ><img src={iconBurger} alt='Кнопка открытия бокового меню'/></button>
+                    <button type='button' className='navigation__button' onClick={handleOpenBurgerMenu} ><img src={iconBurger} alt='Кнопка открытия бокового меню'/></button>
                     <div className={`navigation__menu ${openBurgerMenu && `navigation__menu_opened`}`}>
                       <nav className='navigation__links'>
-                      <button className='navigation__close-button' onClick={handleCloseBurgerMenu}><img src={iconClose} alt='Кнопка закрытия боковго меню'/></button>
+                      <button type='button' className='navigation__close-button' onClick={handleCloseBurgerMenu}><img src={iconClose} alt='Кнопка закрытия боковго меню'/></button>
                       <div className='navigation__container-links'>
                         <NavLink
                             exact
