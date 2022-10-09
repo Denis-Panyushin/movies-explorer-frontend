@@ -2,3 +2,4 @@
 Фронтенд для дипломного проекта
 
 Ссылка на макет - `https://disk.yandex.ru/d/UmucM-X91T6hPw`
+[Ссылка на сайт](https://moviesdiplompanu.nomoredomains.icu) 
