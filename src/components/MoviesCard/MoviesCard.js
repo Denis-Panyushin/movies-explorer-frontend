@@ -11,27 +11,26 @@ export default function MoviesCard(props) {
     return `${hours ? hours + 'ч' : ''} ${minutes}м`;
   };
 
-  //Хардкод для 3 этапа
-  const [isLiked, setIsLiked] = React.useState(false)
+  const isLiked = props.checkLikeStatus({ movie: props.movie });
 
-  function handleLike () {
-    setIsLiked(true)
+  function handleSavedMovie () {
+    props.handleSavedMovie({ movie: props.movie })
   }
 
-  function handleDelteLike () {
-    setIsLiked(false)
+  function handleDeleteMovie () {
+    props.handleDeleteMovie({ movie: props.movie })
   }
 
   return (
     <div className='movie'>
       <div className='movie__image-container'>
         <a className='movie__trailer-link' href={props.movie.trailerLink} target='_blank' rel='noopener noreferrer'>
-          <img className='movie__image' alt={`Постер к фильму ${props.movie.nameRU}`} src={`https://api.nomoreparties.co/${props.movie.image.url}`} />
+          <img className='movie__image' alt={`Постер к фильму ${props.movie.nameRU}`} src={props.savedMovies ? `${props.movie.image}` : `https://api.nomoreparties.co/${props.movie.image.url}`} />
         </a>
         {
           props.savedMovies
-          ? <button type='button' className='movie__button-delete'><img src={iconDeleteButton} alt='Иконка кнопки удалить' className='movie__icon-button-delete'/></button>
-          : isLiked ? <button type='button' className='movie__button-like movie__button-like_active' onClick={handleDelteLike}><img src={iconLikeButton} alt='Иконка активного лайка' className='movie__icon-button-like-active' /></button> : <button className='movie__button-like' onClick={handleLike}>Сохранить</button>
+          ? <button type='button' className='movie__button-delete'><img src={iconDeleteButton} alt='Иконка кнопки удалить' className='movie__icon-button-delete' onClick={handleDeleteMovie}/></button>
+          : isLiked ? <button type='button' className='movie__button-like movie__button-like_active' onClick={handleDeleteMovie}><img src={iconLikeButton} alt='Иконка активного лайка' className='movie__icon-button-like-active' /></button> : <button className='movie__button-like' onClick={handleSavedMovie}>Сохранить</button>
         }
       </div>
       <div className='movie__description'>

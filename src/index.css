@@ -37,6 +37,10 @@
   padding-right: 70px;
 }
 
+.main {
+  flex-grow: 1;
+}
+
 @media screen and (max-width: 1024px) {
   .section {
     padding-left: 50px;

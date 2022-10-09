@@ -6,15 +6,24 @@ import { AppContext } from '../../contexts/AppContext';
 import Footer from '../Footer/Footer';
 
 export default function SavedMovies(props) {
-  //Хардкод для 3 этапа
-  const moviesData = React.useContext(AppContext)
+  const value = React.useContext(AppContext)
 
   return(
     <>
       <Header loggedIn={true} />
-      <main className='saved-movies'>
-        <SearchForm />
-        <MoviesCardList savedMovies={true} moviesData={moviesData} />
+      <main className='saved-movies main'>
+        <SearchForm
+          isLoading={props.isLoading}
+          getMoviesList={props.getMoviesList}
+          handleToggleShortMovies={props.handleToggleShortSavedMovies}
+        />
+        {value.savedMovies &&
+        <MoviesCardList
+          savedMovies={true}
+          handleDeleteMovie={props.handleDeleteSavedMovie}
+          checkLikeStatus={props.checkLikeStatus}
+        />
+        }
       </main>
       <Footer />
     </>

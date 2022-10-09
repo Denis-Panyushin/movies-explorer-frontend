@@ -14,6 +14,10 @@
   align-items: center;
 }
 
+.movies-cardlist__more-button-container_none {
+  display: none;
+}
+
 .movies-cardlist__more-button {
   width: 100%;
   height: 36px;

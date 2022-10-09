@@ -82,6 +82,11 @@
   border: none;
 }
 
+.register__submit-button_disabled {
+  color: #C2C2C2;
+  background-color: #F8F8F8;
+}
+
 .register__submit-button:hover {
   opacity: .6;
   cursor: pointer;
