@@ -54,10 +54,6 @@
   text-align: right;
 }
 
-.profile__input::placeholder {
-  color: #fff;
-}
-
 .profile__input-error {
   font-style: normal;
   font-weight: 400;

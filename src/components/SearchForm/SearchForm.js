@@ -40,7 +40,7 @@ export default function SearchForm(props) {
             Найти
           </button>
         </form>
-        <span className='search__input-error'>{errors.name}</span>
+        <span className='search-movies__input-error'>{errors.name}</span>
         <FilterCheckbox handleToggleShortMovies={props.handleToggleShortMovies}/>
       </div>
     </section>
