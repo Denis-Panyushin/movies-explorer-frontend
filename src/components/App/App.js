@@ -13,10 +13,11 @@ import NotFond from '../NotFound/NotFound.js';
 import ProtectedRoute from '../ProtectedRoute/ProtectedRoute.js';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext.js';
 import InfoPopup from '../InfoPopup/InfoPopup.js';
+import Preloader from '../Preloader/Preloader.js';
 
 function App() {
-  const history = useHistory();
   const location = useLocation();
+  const history = useHistory();
   const [currentUser, setCurrentUser] = React.useState({});
   const [movies, setMovies] = React.useState([]);
   const [savedMovies, setSavedMovies] = React.useState([]);
@@ -29,32 +30,46 @@ function App() {
   const [isError, setIsError] = React.useState(false);
 
   React.useEffect(() =>{
-    if(localStorage.getItem('token')) {
+    setIsLoading(true)
       mainApi.getUserInfo()
       .then((data) => {
         setCurrentUser(data)
+      })
+      .catch(err => console.log(err))
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }, [loggedIn]);
+
+  React.useEffect(() => {
+      setIsLoading(true)
+      mainApi.getUserMovies()
+        .then((data) => {
+          const lastSearchList = JSON.parse(localStorage.getItem('lastSearchList'));
+          lastSearchList && setMovies(lastSearchList);
+          setSavedMovies(data);
+          localStorage.setItem(
+            'savedMoviesList',
+            JSON.stringify(data)
+          );
+        })
+        .catch((err) => console.log(err))
+        .finally(() => {
+          setIsLoading(false)
+        })
+  }, [loggedIn]);
+
+  React.useEffect(() => {
+    const token = localStorage.getItem('token');
+    if(localStorage.getItem('token')){
+      mainApi.checkToken(token)
+      .then((data) => {
         setLoggedIn(true)
         history.push(location.pathname)
       })
       .catch(err => console.log(err))
     }
-  }, [loggedIn]);
-
-  React.useEffect(() => {
-    mainApi.getUserMovies()
-      .then((data) => {
-        const lastSearchList = JSON.parse(localStorage.getItem('lastSearchList'));
-        lastSearchList && setMovies(lastSearchList);
-        setSavedMovies(data);
-        localStorage.setItem(
-          'savedMoviesList',
-          JSON.stringify(data)
-        );
-        setLoggedIn(true);
-        history.push(location.pathname);
-      })
-      .catch((err) => console.log(err));
-  }, [loggedIn]);
+  }, [localStorage.getItem('token')])
 
   function handleRegister({ name, email, password }) {
     mainApi.register(name, email, password)
@@ -71,9 +86,8 @@ function App() {
   function handleLogin({ email, password}) {
     mainApi.login(email, password)
     .then((res) => {
-      console.log(res)
-      setLoggedIn(true)
       history.push('/movies')
+      setLoggedIn(true)
     })
     .catch((err) => {
       console.log(err)
@@ -278,21 +292,25 @@ function App() {
       : setSavedMovies(savedMoviesList);
   }, [isShortSasvedMovies]);
 
-  function handleLogout(email) {
+  function handleLogout({ email }) {
+    setIsLoading(true)
     mainApi.logout(email)
       .then(() => {
-        setLoggedIn(false);
         setCurrentUser({ name: '', email: '' });
         localStorage.removeItem('movies');
         localStorage.removeItem('lastSearchList');
         localStorage.removeItem('savedMoviesList');
+        localStorage.removeItem('token');
         setMovies([]);
         setSavedMovies([]);
+        setLoggedIn(false);
         history.push('/');
+        console.log(loggedIn)
       })
       .catch((err) => {
         console.log(err);
-      });
+      })
+      .finally(() => setIsLoading(false))
   };
 
   return (
@@ -300,7 +318,8 @@ function App() {
       <AppContext.Provider value={{
         movies: movies,
         savedMovies: savedMovies,
-        loggedIn: loggedIn
+        loggedIn: loggedIn,
+        isLoading: isLoading
       }}>
         <div className='background'>
           <div className='page'>
@@ -318,7 +337,7 @@ function App() {
                 path='/profile'
                 component={Profile}
                 handleEditProfile={handleEditProfile}
-                handleLogout={handleLogout}
+                logout={handleLogout}
                 isLoading={isLoading}
               />
               <ProtectedRoute

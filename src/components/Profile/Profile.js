@@ -27,6 +27,10 @@ export default function Profile(props) {
     setEdit(true)
   }
 
+  function handleLogout() {
+    props.logout({ email: currentUser.email })
+  }
+
   return(
     <>
       <Header loggedIn={true} />
@@ -77,7 +81,7 @@ export default function Profile(props) {
               edit
                 ? <ul className='profile__buttons'>
                     <button className='profile__edit-button' type='button' onClick={handleEdit}>Редактировать</button>
-                    <button className='profile__signout-button' type='button' onClick={props.handleLogout}>Выйти из аккаунта</button>
+                    <button className='profile__signout-button' type='button' onClick={handleLogout}>Выйти из аккаунта</button>
                   </ul>
 
                 : <button className={ isValid ? 'profile__submit-button' : 'profile__submit-button profile__submit-button_disabled'} disabled={!isValid} type='submit'>Сохранить</button>

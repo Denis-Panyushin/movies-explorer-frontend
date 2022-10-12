@@ -48,6 +48,18 @@ export const login = (email, password) => {
   })
 };
 
+export const checkToken = (jwt) => {
+  return fetch(`${urlMain}/users/me`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${jwt}`
+    }
+  })
+  .then(data => data)
+  .then((res) => checkResponse(res))
+};
+
 export const logout = (email) => {
   return fetch(`${urlMain}/signout`, {
     method: 'POST',
@@ -58,7 +70,6 @@ export const logout = (email) => {
       email: email
     })
   })
-  .then(data => data)
   .then((res) => checkResponse(res))
 };
 
