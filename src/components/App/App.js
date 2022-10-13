@@ -13,7 +13,6 @@ import NotFond from '../NotFound/NotFound.js';
 import ProtectedRoute from '../ProtectedRoute/ProtectedRoute.js';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext.js';
 import InfoPopup from '../InfoPopup/InfoPopup.js';
-import Preloader from '../Preloader/Preloader.js';
 
 function App() {
   const location = useLocation();
@@ -21,53 +20,57 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [movies, setMovies] = React.useState([]);
   const [savedMovies, setSavedMovies] = React.useState([]);
-  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [loggedIn, setLoggedIn] = React.useState(undefined);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isShortMovies, setIsShortMovies] = React.useState(false);
-  const [isShortSasvedMovies, setIsShortSasvedMovies] = React.useState(false);
+  const [isShortMovies, setIsShortMovies] = React.useState(undefined);
+  const [isShortSavedMovies, setIsShortSavedMovies] = React.useState(false);
   const [isInfoPopupOpen, setIsInfoPopupOpen] = React.useState(false);
   const [infoPopupTitle, setInfoPopupTitle] = React.useState({ title: 'Что-то пошло не так! Попробуйте ещё раз.' });
   const [isError, setIsError] = React.useState(false);
 
   React.useEffect(() =>{
-    setIsLoading(true)
-      mainApi.getUserInfo()
-      .then((data) => {
-        setCurrentUser(data)
-      })
-      .catch(err => console.log(err))
-      .finally(() => {
-        setIsLoading(false)
-      })
-  }, [loggedIn]);
+    if(loggedIn === true) {
+      setIsLoading(true)
+        mainApi.getUserInfo()
+          .then((data) => {
+            setCurrentUser(data)
+          })
+          .catch(err => console.log(err))
+          .finally(() => {
+            setIsLoading(false)
+          })
+      }
+  }, [location, loggedIn]);
 
   React.useEffect(() => {
-      setIsLoading(true)
-      mainApi.getUserMovies()
-        .then((data) => {
-          const lastSearchList = JSON.parse(localStorage.getItem('lastSearchList'));
-          lastSearchList && setMovies(lastSearchList);
-          setSavedMovies(data);
-          localStorage.setItem(
-            'savedMoviesList',
-            JSON.stringify(data)
-          );
-        })
-        .catch((err) => console.log(err))
-        .finally(() => {
-          setIsLoading(false)
-        })
-  }, [loggedIn]);
+      if(loggedIn === true) {
+        setIsLoading(true)
+        mainApi.getUserMovies()
+          .then((data) => {
+            const lastSearchList = JSON.parse(localStorage.getItem('lastSearchList'));
+            lastSearchList && setMovies(lastSearchList);
+            setSavedMovies(data);
+            localStorage.setItem(
+              'savedMoviesList',
+              JSON.stringify(data)
+            );
+          })
+          .catch((err) => console.log(err))
+          .finally(() => {
+            setIsLoading(false)
+          })
+      }
+  }, [location, loggedIn]);
 
   React.useEffect(() => {
     const token = localStorage.getItem('token');
     if(localStorage.getItem('token')){
       mainApi.checkToken(token)
-      .then((data) => {
-        setLoggedIn(true)
-        history.push(location.pathname)
-      })
-      .catch(err => console.log(err))
+        .then((data) => {
+          setLoggedIn(true)
+          history.push(location.pathname)
+        })
+        .catch(err => console.log(err))
     }
   }, [localStorage.getItem('token')])
 
@@ -158,10 +161,6 @@ function App() {
   };
 
   function searchMovies(name) {
-    if (!name) {
-      openErrorPopup('Нужно ввести ключевое слово');
-      return;
-    }
     const MoviesList = JSON.parse(localStorage.getItem('movies'));
     const lastSearchList = MoviesList.filter((movie) => {
       const nameEN = movie.nameEN ? movie.nameEN : movie.nameRU;
@@ -177,13 +176,25 @@ function App() {
     return lastSearchList;
   };
 
-  function getMovieslist(name) {
+  function getMovieslist(name, isShort) {
     if (loggedIn) {
       setIsLoading(true);
       movieApi.getMovies()
         .then((moviesData) => {
           localStorage.setItem('movies', JSON.stringify(moviesData));
-          searchMovies(name);
+          const searchedMovies = moviesData.filter((movie) => {
+            const nameEN = movie.nameEN ? movie.nameEN : movie.nameRU;
+            return (movie.nameRU.toLowerCase().includes(name.toLowerCase()) ||
+            movie.description.toLowerCase().includes(name.toLowerCase()) ||
+            nameEN.toLowerCase().includes(name.toLowerCase()))
+          })
+          const foundMovies = isShort ? searchedMovies.filter((item) => item.duration <= 40) : searchedMovies
+          localStorage.setItem('foundMovies', JSON.stringify(foundMovies))
+          const lastSearchList = ('lastSearchList', JSON.parse(localStorage.getItem('foundMovies')))
+          localStorage.setItem('nameMovie', name)
+          localStorage.setItem('isShort', isShort)
+          setMovies(lastSearchList)
+          foundMovies.length === 0 && openErrorPopup('Ничего не найдено');
         })
         .catch((err) => {
           openErrorPopup('Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз');
@@ -266,41 +277,27 @@ function App() {
       });
   };
 
-  function handleToggleShortSavedMovies() {
-    !isShortSasvedMovies
-      ? setIsShortSasvedMovies(true)
-      : setIsShortSasvedMovies(false);
+  function handleToggleShortSavedMovies({ checked }) {
+    !checked
+      ? setIsShortSavedMovies(true)
+      : setIsShortSavedMovies(false);
   };
-
-  function handleToggleShortMovies() {
-    !isShortMovies ? setIsShortMovies(true) : setIsShortMovies(false);
-  };
-
-  React.useEffect(() => {
-    const lastSearchList = JSON.parse(localStorage.getItem('lastSearchList'));
-    isShortMovies
-      ? setMovies((state) => state.filter((i) => i.duration <= 40))
-      : setMovies(lastSearchList);
-  }, [isShortMovies]);
 
   React.useEffect(() => {
     const savedMoviesList = JSON.parse(localStorage.getItem('savedMoviesList'));
-    isShortSasvedMovies
+    isShortSavedMovies
       ? setSavedMovies((state) =>
           state.filter((i) => i.duration <= 40)
         )
       : setSavedMovies(savedMoviesList);
-  }, [isShortSasvedMovies]);
+  }, [isShortSavedMovies]);
 
   function handleLogout({ email }) {
     setIsLoading(true)
     mainApi.logout(email)
       .then(() => {
+        localStorage.clear();
         setCurrentUser({ name: '', email: '' });
-        localStorage.removeItem('movies');
-        localStorage.removeItem('lastSearchList');
-        localStorage.removeItem('savedMoviesList');
-        localStorage.removeItem('token');
         setMovies([]);
         setSavedMovies([]);
         setLoggedIn(false);
@@ -342,12 +339,12 @@ function App() {
               />
               <ProtectedRoute
                 path='/movies'
+                defaultValue={localStorage.getItem('nameMovie') || ''}
                 component={Movies}
                 getMoviesList={getMovieslist}
                 handleSavedMovie={handleSavedMovie}
                 handleDeleteMovie={handleDeleteMovie}
                 checkLikeStatus={checkLikeStatus}
-                handleToggleShortMovies={handleToggleShortMovies}
                 isLoading={isLoading}
               />
               <ProtectedRoute

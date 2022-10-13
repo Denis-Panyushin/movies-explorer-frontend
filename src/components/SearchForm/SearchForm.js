@@ -1,18 +1,37 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import useFormWithValidation from '../../hooks/useFormWithValidation';
-import FilterCheckbox from '../FilterCheckbox/FilterCheckbox';
 import './SearchForm.css';
 
 export default function SearchForm(props) {
-  const { values, handleChange, resetForm, errors, isValid } = useFormWithValidation();
+  const location = useLocation();
+  const { values, handleChange, errors, isValid, setValues } = useFormWithValidation();
   const { name } = values;
+  const [checked, setChecked] = React.useState(false)
 
   function handleSubmit(e) {
     e.preventDefault();
     isValid && !props.isLoading &&
-      props.getMoviesList(name);
-    resetForm();
+      props.getMoviesList(name, checked);
   }
+
+  function onChange(event) {
+    const isShortFilms = event.target.checked
+    setChecked(isShortFilms)
+    if (location.pathname === '/movies') {
+      props.getMoviesList(props.defaultValue, !checked)
+    } else if (location.pathname === '/saved-movies'){
+      props.handleToggleShortMovies({checked: checked})
+    }
+  }
+
+  React.useEffect(() => {
+    if (location.pathname === '/movies') {
+      setValues({ name: props.defaultValue })
+      setChecked(JSON.parse(localStorage.getItem('isShort')))
+      props.getMoviesList(props.defaultValue, !checked)
+    }
+  }, [location])
 
   return(
     <section className='search-movies section-movies'>
@@ -26,11 +45,11 @@ export default function SearchForm(props) {
             className='search-movies__input'
             type='text'
             name='name'
-            required
             placeholder='Фильм'
             maxLength='60'
             onChange={handleChange}
             value={name || ''}
+            autoComplete='off'
           />
           <button
             className='search-movies__button'
@@ -41,7 +60,19 @@ export default function SearchForm(props) {
           </button>
         </form>
         <span className='search-movies__input-error'>{errors.name}</span>
-        <FilterCheckbox handleToggleShortMovies={props.handleToggleShortMovies}/>
+        <div className='filter-ckeckbox'>
+      <label className='filter-checkbox__label'>
+        <input
+          type='checkbox'
+          className='filter-checkbox__input'
+          name='filterCheckbox'
+          checked={checked}
+          onChange={(e) => onChange(e)}
+        />
+        <span className='filter-checkbox_visible'></span>
+      </label>
+      <p className='filter-checkbox__title'>Короткометражки</p>
+    </div>
       </div>
     </section>
   )

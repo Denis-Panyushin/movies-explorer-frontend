@@ -17,6 +17,7 @@ export default function Movies(props) {
           isLoading={props.isLoading}
           getMoviesList={props.getMoviesList}
           handleToggleShortMovies={props.handleToggleShortMovies}
+          defaultValue={props.defaultValue}
         />
         {props.isLoading && <Preloader />}
         {value.movies &&
