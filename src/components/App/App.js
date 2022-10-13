@@ -22,7 +22,6 @@ function App() {
   const [savedMovies, setSavedMovies] = React.useState([]);
   const [loggedIn, setLoggedIn] = React.useState(undefined);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isShortMovies, setIsShortMovies] = React.useState(undefined);
   const [isShortSavedMovies, setIsShortSavedMovies] = React.useState(false);
   const [isInfoPopupOpen, setIsInfoPopupOpen] = React.useState(false);
   const [infoPopupTitle, setInfoPopupTitle] = React.useState({ title: 'Что-то пошло не так! Попробуйте ещё раз.' });
@@ -158,22 +157,6 @@ function App() {
       );
     }
     return false;
-  };
-
-  function searchMovies(name) {
-    const MoviesList = JSON.parse(localStorage.getItem('movies'));
-    const lastSearchList = MoviesList.filter((movie) => {
-      const nameEN = movie.nameEN ? movie.nameEN : movie.nameRU;
-      return (
-        movie.nameRU.toLowerCase().includes(name.toLowerCase()) ||
-        movie.description.toLowerCase().includes(name.toLowerCase()) ||
-        nameEN.toLowerCase().includes(name.toLowerCase())
-      );
-    });
-    setMovies(lastSearchList);
-    localStorage.setItem('lastSearchList', JSON.stringify(lastSearchList));
-    lastSearchList.length === 0 && openErrorPopup('Ничего не найдено');
-    return lastSearchList;
   };
 
   function getMovieslist(name, isShort) {
