@@ -26,8 +26,6 @@ export default function Profile(props) {
     } else (
       setDisabled(true)
     )
-    console.log(name)
-    console.log(currentUser.name)
   }, [name, email])
 
   React.useEffect(() => {

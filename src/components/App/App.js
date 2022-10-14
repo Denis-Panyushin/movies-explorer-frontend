@@ -55,8 +55,6 @@ function App() {
   }, [checkToken, loggedIn]);
 
   React.useEffect(() => {
-    console.log(localStorage.getItem('token'))
-    if(localStorage.getItem('token')){
       if(checkToken === true) {
           setIsLoading(true)
           mainApi.getUserMovies()
@@ -74,7 +72,6 @@ function App() {
               setIsLoading(false)
             })
       }
-    }
   }, [checkToken, loggedIn, localStorage.getItem('token')]);
 
   function handleRegister({ name, email, password }) {
@@ -181,7 +178,6 @@ function App() {
           const lastSearchList = ('lastSearchList', JSON.parse(localStorage.getItem('foundMovies')))
           localStorage.setItem('nameMovie', name)
           localStorage.setItem('isShort', isShort)
-          console.log(isShort)
           setMovies(lastSearchList)
           foundMovies.length === 0 && openErrorPopup('Ничего не найдено');
         })
@@ -335,7 +331,6 @@ function App() {
                 path='/movies'
                 loggedIn={loggedIn}
                 defaultValue={localStorage.getItem('nameMovie') || ''}
-                checked={localStorage.getItem('isShort') === 'true' || false}
                 component={Movies}
                 getMoviesList={handleSearchMovies}
                 handleSavedMovie={handleSavedMovie}

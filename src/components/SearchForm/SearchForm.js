@@ -7,7 +7,8 @@ export default function SearchForm(props) {
   const location = useLocation();
   const { values, handleChange, errors, isValid, setValues } = useFormWithValidation();
   const { name } = values;
-  const [checked, setChecked] = React.useState(false)
+  const localCheked = localStorage.getItem('isShort') === 'true'
+  const [checked, setChecked] = React.useState(localCheked)
 
   function handleSubmit(e) {
     e.preventDefault();
