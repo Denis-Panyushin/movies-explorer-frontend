@@ -28,8 +28,7 @@ export default function SearchForm(props) {
   React.useEffect(() => {
     if (location.pathname === '/movies') {
       setValues({ name: props.defaultValue })
-      setChecked(JSON.parse(localStorage.getItem('isShort')))
-      props.getMoviesList(props.defaultValue, !checked)
+      props.getMoviesList(props.defaultValue, checked)
     }
   }, [location])
 

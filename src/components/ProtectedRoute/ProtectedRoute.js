@@ -7,7 +7,7 @@ const ProtectedRoute = ({ component: Component, ...props }) => {
 
   return (
     <Route>
-      {() => (value.loggedIn ? <Component {...props} /> : value.loggedIn === false && <Redirect exact to='/' />)}
+      {() => (value.loggedIn ? value.checkToken && <Component {...props} /> : value.loggedIn === false && <Redirect exact to='/' />)}
     </Route>
   );
 };

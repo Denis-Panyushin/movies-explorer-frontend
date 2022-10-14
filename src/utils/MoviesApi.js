@@ -11,6 +11,6 @@ export const getMovies = () => {
   return fetch(`${urlMovies}`, {
     headers: {
       'Content-type': 'application/json'
-    }
+    },
   }).then(checkResponse);
 }

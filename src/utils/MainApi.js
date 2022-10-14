@@ -1,5 +1,4 @@
 const urlMain = 'https://api.moviesdiplompanu.nomorepartiesxyz.ru';
-const token = localStorage.getItem('token');
 
 const checkResponse = (response) => {
   if (response.ok) {
@@ -53,7 +52,7 @@ export const checkToken = (jwt) => {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${jwt}`
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
   })
   .then(data => data)
@@ -77,7 +76,7 @@ export const getUserInfo = () => {
   return fetch(`${urlMain}/users/me`, {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
       'Content-type': 'application/json'
     }
   })
@@ -88,7 +87,7 @@ export const setUserInfo = (name, email) => {
   return fetch(`${urlMain}/users/me`, {
     method: 'PATCH',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
       'Content-type': 'application/json'
     },
     body: JSON.stringify({
@@ -103,7 +102,7 @@ export const getUserMovies = () => {
   return fetch(`${urlMain}/movies`, {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
       'Content-type': 'application/json'
     }
   })
@@ -126,7 +125,7 @@ export const createMovie = ({
   return fetch(`${urlMain}/movies`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
       'Content-type': 'application/json'
     },
     body: JSON.stringify({
@@ -150,7 +149,7 @@ export const deleteMovie = (movieId) => {
   return fetch(`${urlMain}/movies/${movieId}`, {
     method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
   })
   .then((res) => checkResponse(res))

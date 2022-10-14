@@ -21,57 +21,61 @@ function App() {
   const [movies, setMovies] = React.useState([]);
   const [savedMovies, setSavedMovies] = React.useState([]);
   const [loggedIn, setLoggedIn] = React.useState(undefined);
+  const [checkToken, setCheckToken] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false);
   const [isShortSavedMovies, setIsShortSavedMovies] = React.useState(false);
   const [isInfoPopupOpen, setIsInfoPopupOpen] = React.useState(false);
   const [infoPopupTitle, setInfoPopupTitle] = React.useState({ title: 'Что-то пошло не так! Попробуйте ещё раз.' });
   const [isError, setIsError] = React.useState(false);
 
-  React.useEffect(() =>{
-    if(loggedIn === true) {
-      setIsLoading(true)
-        mainApi.getUserInfo()
-          .then((data) => {
-            setCurrentUser(data)
-          })
-          .catch(err => console.log(err))
-          .finally(() => {
-            setIsLoading(false)
-          })
-      }
-  }, [location, loggedIn]);
-
   React.useEffect(() => {
-      if(loggedIn === true) {
-        setIsLoading(true)
-        mainApi.getUserMovies()
-          .then((data) => {
-            const lastSearchList = JSON.parse(localStorage.getItem('lastSearchList'));
-            lastSearchList && setMovies(lastSearchList);
-            setSavedMovies(data);
-            localStorage.setItem(
-              'savedMoviesList',
-              JSON.stringify(data)
-            );
-          })
-          .catch((err) => console.log(err))
-          .finally(() => {
-            setIsLoading(false)
-          })
-      }
-  }, [location, loggedIn]);
-
-  React.useEffect(() => {
-    const token = localStorage.getItem('token');
     if(localStorage.getItem('token')){
-      mainApi.checkToken(token)
+      mainApi.checkToken()
         .then((data) => {
           setLoggedIn(true)
           history.push(location.pathname)
+          setCheckToken(true)
         })
         .catch(err => console.log(err))
     }
   }, [localStorage.getItem('token')])
+
+  React.useEffect(() =>{
+      if(checkToken === true) {
+        setIsLoading(true)
+          mainApi.getUserInfo()
+            .then((data) => {
+              setCurrentUser(data)
+            })
+            .catch(err => console.log(err))
+            .finally(() => {
+              setIsLoading(false)
+            })
+      }
+  }, [checkToken, loggedIn]);
+
+  React.useEffect(() => {
+    console.log(localStorage.getItem('token'))
+    if(localStorage.getItem('token')){
+      if(checkToken === true) {
+          setIsLoading(true)
+          mainApi.getUserMovies()
+            .then((data) => {
+              const lastSearchList = JSON.parse(localStorage.getItem('lastSearchList'));
+              lastSearchList && setMovies(lastSearchList);
+              setSavedMovies(data);
+              localStorage.setItem(
+                'savedMoviesList',
+                JSON.stringify(data)
+              );
+            })
+            .catch((err) => console.log(err))
+            .finally(() => {
+              setIsLoading(false)
+            })
+      }
+    }
+  }, [checkToken, loggedIn, localStorage.getItem('token')]);
 
   function handleRegister({ name, email, password }) {
     mainApi.register(name, email, password)
@@ -90,6 +94,7 @@ function App() {
     .then((res) => {
       history.push('/movies')
       setLoggedIn(true)
+      console.log(localStorage.getItem('token'))
     })
     .catch((err) => {
       console.log(err)
@@ -176,6 +181,7 @@ function App() {
           const lastSearchList = ('lastSearchList', JSON.parse(localStorage.getItem('foundMovies')))
           localStorage.setItem('nameMovie', name)
           localStorage.setItem('isShort', isShort)
+          console.log(isShort)
           setMovies(lastSearchList)
           foundMovies.length === 0 && openErrorPopup('Ничего не найдено');
         })
@@ -187,6 +193,10 @@ function App() {
         });
     }
   };
+
+  function handleSearchMovies(name, isShort) {
+    getMovieslist(name, isShort)
+  }
 
   function searchSavedMovies(name) {
     const savedMoviesList = JSON.parse(localStorage.getItem('savedMoviesList'));
@@ -279,13 +289,12 @@ function App() {
     setIsLoading(true)
     mainApi.logout(email)
       .then(() => {
-        localStorage.clear();
         setCurrentUser({ name: '', email: '' });
         setMovies([]);
         setSavedMovies([]);
         setLoggedIn(false);
         history.push('/');
-        console.log(loggedIn)
+        localStorage.clear();
       })
       .catch((err) => {
         console.log(err);
@@ -299,7 +308,8 @@ function App() {
         movies: movies,
         savedMovies: savedMovies,
         loggedIn: loggedIn,
-        isLoading: isLoading
+        isLoading: isLoading,
+        checkToken: checkToken
       }}>
         <div className='background'>
           <div className='page'>
@@ -315,6 +325,7 @@ function App() {
               </Route>
               <ProtectedRoute
                 path='/profile'
+                loggedIn={loggedIn}
                 component={Profile}
                 handleEditProfile={handleEditProfile}
                 logout={handleLogout}
@@ -322,9 +333,11 @@ function App() {
               />
               <ProtectedRoute
                 path='/movies'
+                loggedIn={loggedIn}
                 defaultValue={localStorage.getItem('nameMovie') || ''}
+                checked={localStorage.getItem('isShort') === 'true' || false}
                 component={Movies}
-                getMoviesList={getMovieslist}
+                getMoviesList={handleSearchMovies}
                 handleSavedMovie={handleSavedMovie}
                 handleDeleteMovie={handleDeleteMovie}
                 checkLikeStatus={checkLikeStatus}
@@ -332,6 +345,7 @@ function App() {
               />
               <ProtectedRoute
                 path='/saved-movies'
+                loggedIn={loggedIn}
                 component={SavedMovies}
                 getMoviesList={searchSavedMovies}
                 handleDeleteSavedMovie={handleDeleteSavedMovie}
