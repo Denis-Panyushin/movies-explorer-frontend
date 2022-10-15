@@ -9,6 +9,7 @@ export default function SearchForm(props) {
   const { name } = values;
   const localCheked = localStorage.getItem('isShort') === 'true'
   const [checked, setChecked] = React.useState(localCheked)
+  const [savedChecked, setSavedChecked] = React.useState(false)
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -19,10 +20,11 @@ export default function SearchForm(props) {
   function onChange(event) {
     const isShortFilms = event.target.checked
     setChecked(isShortFilms)
+    setSavedChecked(isShortFilms)
     if (location.pathname === '/movies') {
       props.getMoviesList(props.defaultValue, !checked)
     } else if (location.pathname === '/saved-movies'){
-      props.handleToggleShortMovies({checked: checked})
+      props.handleToggleShortMovies({checked: !savedChecked})
     }
   }
 
@@ -66,7 +68,7 @@ export default function SearchForm(props) {
           type='checkbox'
           className='filter-checkbox__input'
           name='filterCheckbox'
-          checked={checked}
+          checked={location.pathname === '/movies' ? checked : savedChecked}
           onChange={(e) => onChange(e)}
         />
         <span className='filter-checkbox_visible'></span>

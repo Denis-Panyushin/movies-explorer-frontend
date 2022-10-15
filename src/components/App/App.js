@@ -20,6 +20,7 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [movies, setMovies] = React.useState([]);
   const [savedMovies, setSavedMovies] = React.useState([]);
+  const [filtredSavedMovies, setFiltredSavedMovies] = React.useState([])
   const [loggedIn, setLoggedIn] = React.useState(undefined);
   const [checkToken, setCheckToken] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false);
@@ -41,44 +42,47 @@ function App() {
   }, [localStorage.getItem('token')])
 
   React.useEffect(() =>{
-      if(checkToken === true) {
+    if(checkToken === true) {
+      if(loggedIn === true) {
         setIsLoading(true)
-          mainApi.getUserInfo()
-            .then((data) => {
-              setCurrentUser(data)
-            })
-            .catch(err => console.log(err))
-            .finally(() => {
-              setIsLoading(false)
-            })
+        mainApi.getUserInfo()
+          .then((data) => {
+            setCurrentUser(data)
+          })
+          .catch(err => console.log(err))
+          .finally(() => {
+            setIsLoading(false)
+          })
       }
+    }
   }, [checkToken, loggedIn]);
 
   React.useEffect(() => {
-      if(checkToken === true) {
-          setIsLoading(true)
-          mainApi.getUserMovies()
-            .then((data) => {
-              const lastSearchList = JSON.parse(localStorage.getItem('lastSearchList'));
-              lastSearchList && setMovies(lastSearchList);
-              setSavedMovies(data);
-              localStorage.setItem(
-                'savedMoviesList',
-                JSON.stringify(data)
-              );
-            })
-            .catch((err) => console.log(err))
-            .finally(() => {
-              setIsLoading(false)
-            })
+    if(checkToken === true) {
+      if(loggedIn === true) {
+        setIsLoading(true)
+        mainApi.getUserMovies()
+          .then((data) => {
+            setSavedMovies(data)
+            setFiltredSavedMovies(data);
+            localStorage.setItem(
+            'savedMoviesList',
+            JSON.stringify(data)
+            );
+          })
+          .catch((err) => console.log(err))
+          .finally(() => {
+            setIsLoading(false)
+          })
       }
-  }, [checkToken, loggedIn, localStorage.getItem('token')]);
+    }
+  }, [checkToken, loggedIn]);
 
   function handleRegister({ name, email, password }) {
     mainApi.register(name, email, password)
     .then((res) => {
       console.log(res)
-      history.push('/signin')
+      handleLogin({email: email, password: password})
     })
     .catch((err) => {
       console.log(err)
@@ -91,7 +95,6 @@ function App() {
     .then((res) => {
       history.push('/movies')
       setLoggedIn(true)
-      console.log(localStorage.getItem('token'))
     })
     .catch((err) => {
       console.log(err)
@@ -194,7 +197,7 @@ function App() {
     getMovieslist(name, isShort)
   }
 
-  function searchSavedMovies(name) {
+  function handleSearchSavedMovies(name) {
     const savedMoviesList = JSON.parse(localStorage.getItem('savedMoviesList'));
     if (!name) {
       openErrorPopup('Нужно ввести ключевое слово');
@@ -209,7 +212,7 @@ function App() {
           nameEN.toLowerCase().includes(name.toLowerCase())
         );
       });
-      setSavedMovies(searchSavedMoviesList);
+      setFiltredSavedMovies(searchSavedMoviesList);
     }
   };
 
@@ -233,6 +236,7 @@ function App() {
       .then((res) => {
         const NewSavedMovies = [res.movie, ...savedMovies];
         setSavedMovies(NewSavedMovies);
+        setFiltredSavedMovies(NewSavedMovies);
         localStorage.setItem('savedMoviesList', JSON.stringify(NewSavedMovies));
       })
       .catch((err) => {
@@ -247,6 +251,7 @@ function App() {
           (i) => i.movieId !== movie.id
         );
         setSavedMovies(NewSavedMovies);
+        setFiltredSavedMovies(NewSavedMovies);
         localStorage.setItem('savedMoviesList', JSON.stringify(NewSavedMovies));
       })
       .catch((err) => {
@@ -259,6 +264,7 @@ function App() {
       .then((res) => {
         const NewSavedMovies = savedMovies.filter((i) => i._id !== movie._id);
         setSavedMovies(NewSavedMovies);
+        setFiltredSavedMovies(NewSavedMovies);
         localStorage.setItem('savedMoviesList', JSON.stringify(NewSavedMovies));
       })
       .catch((err) => {
@@ -267,7 +273,7 @@ function App() {
   };
 
   function handleToggleShortSavedMovies({ checked }) {
-    !checked
+    checked
       ? setIsShortSavedMovies(true)
       : setIsShortSavedMovies(false);
   };
@@ -275,22 +281,23 @@ function App() {
   React.useEffect(() => {
     const savedMoviesList = JSON.parse(localStorage.getItem('savedMoviesList'));
     isShortSavedMovies
-      ? setSavedMovies((state) =>
+      ? setFiltredSavedMovies((state) =>
           state.filter((i) => i.duration <= 40)
         )
-      : setSavedMovies(savedMoviesList);
+      : setFiltredSavedMovies(savedMoviesList);
   }, [isShortSavedMovies]);
 
   function handleLogout({ email }) {
     setIsLoading(true)
     mainApi.logout(email)
       .then(() => {
+        localStorage.clear();
         setCurrentUser({ name: '', email: '' });
         setMovies([]);
         setSavedMovies([]);
+        setFiltredSavedMovies([]);
         setLoggedIn(false);
         history.push('/');
-        localStorage.clear();
       })
       .catch((err) => {
         console.log(err);
@@ -302,7 +309,7 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <AppContext.Provider value={{
         movies: movies,
-        savedMovies: savedMovies,
+        savedMovies: filtredSavedMovies,
         loggedIn: loggedIn,
         isLoading: isLoading,
         checkToken: checkToken
@@ -342,7 +349,7 @@ function App() {
                 path='/saved-movies'
                 loggedIn={loggedIn}
                 component={SavedMovies}
-                getMoviesList={searchSavedMovies}
+                getMoviesList={handleSearchSavedMovies}
                 handleDeleteSavedMovie={handleDeleteSavedMovie}
                 checkLikeStatus={checkLikeStatus}
                 handleToggleShortSavedMovies={handleToggleShortSavedMovies}
