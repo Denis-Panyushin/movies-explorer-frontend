@@ -4,6 +4,7 @@
   align-items: center;
   flex-wrap: wrap;
   padding: 79px 70px 0;
+  flex-shrink: 0;
 }
 
 .footer__title {

@@ -12,7 +12,7 @@ export default function Main() {
   return(
     <>
       <Header loggedIn={false} />
-      <main className='landing-content'>
+      <main className='landing-content main'>
         <Promo />
         <AboutProject />
         <Techs />
